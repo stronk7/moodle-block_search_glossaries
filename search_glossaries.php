@@ -1,6 +1,5 @@
 <?php
-// This file is part of block_search_glossaries,
-// a contrib block for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,15 +42,15 @@ function search($query, $course, $offset, &$countentries) {
     // Some differences in syntax for PostgreSQL.
     // TODO: Modify this to support also MSSQL and Oracle.
     if ($CFG->dbfamily == 'postgres') {
-        $LIKE = "ILIKE";   // Case-insensitive.
-        $NOTLIKE = "NOT ILIKE";   // Case-insensitive.
-        $REGEXP = "~*";
-        $NOTREGEXP = "!~*";
+        $like = "ILIKE";   // Case-insensitive.
+        $notlike = "NOT ILIKE";   // Case-insensitive.
+        $regexp = "~*";
+        $notregexp = "!~*";
     } else {
-        $LIKE = "LIKE";
-        $NOTLIKE = "NOT LIKE";
-        $REGEXP = "REGEXP";
-        $NOTREGEXP = "NOT REGEXP";
+        $like = "LIKE";
+        $notlike = "NOT LIKE";
+        $regexp = "REGEXP";
+        $notregexp = "NOT REGEXP";
     }
 
     // Perform the search only in glossaries fulfilling mod/glossary:view and (visible or moodle/course:viewhiddenactivities)
@@ -71,45 +70,45 @@ function search($query, $course, $offset, &$countentries) {
     }
 
     // Search starts.
-    $conceptsearch = "";
-    $aliassearch = "";
-    $definitionsearch = "";
+    $conceptsearch = '';
+    $aliassearch = '';
+    $definitionsearch = '';
 
-    $searchterms = explode(" ",$query);
+    $searchterms = explode(' ', $query);
 
     foreach ($searchterms as $searchterm) {
 
         if ($conceptsearch) {
-            $conceptsearch .= " AND ";
+            $conceptsearch .= ' AND ';
         }
         if ($aliassearch) {
-            $aliassearch .= " AND ";
+            $aliassearch .= ' AND ';
         }
         if ($definitionsearch) {
-            $definitionsearch .= " AND ";
+            $definitionsearch .= ' AND ';
         }
 
-        if (substr($searchterm,0,1) == "+") {
-            $searchterm = substr($searchterm,1);
-            $conceptsearch .= " ge.concept $REGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
-            $aliassearch .= " al.alias $REGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
-            $definitionsearch .= " ge.definition $REGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
-        } else if (substr($searchterm,0,1) == "-") {
-            $searchterm = substr($searchterm,1);
-            $conceptsearch .= " ge.concept $NOTREGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
-            $aliassearch .= " al.alias $NOTREGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
-            $definitionsearch .= " ge.definition $NOTREGEXP '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+        if (substr($searchterm, 0, 1) == '+') {
+            $searchterm = substr($searchterm, 1);
+            $conceptsearch .= " ge.concept $regexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+            $aliassearch .= " al.alias $regexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+            $definitionsearch .= " ge.definition $regexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+        } else if (substr($searchterm, 0, 1) == '-') {
+            $searchterm = substr($searchterm, 1);
+            $conceptsearch .= " ge.concept $notregexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+            $aliassearch .= " al.alias $notregexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
+            $definitionsearch .= " ge.definition $notregexp '(^|[^a-zA-Z0-9])$searchterm([^a-zA-Z0-9]|$)' ";
         } else {
-            $conceptsearch .= " ge.concept $LIKE '%$searchterm%' ";
-            $aliassearch .= " al.alias $LIKE '%$searchterm%' ";
-            $definitionsearch .= " ge.definition $LIKE '%$searchterm%' ";
+            $conceptsearch .= " ge.concept $like '%$searchterm%' ";
+            $aliassearch .= " al.alias $like '%$searchterm%' ";
+            $definitionsearch .= " ge.definition $like '%$searchterm%' ";
         }
     }
 
     // Approved or own entries.
     $userid = '';
     if (isset($USER->id)) {
-        $userid = "OR ge.userid = $USER->id";
+        $userid = " OR ge.userid = $USER->id ";
     }
 
     // Search in aliases first.
@@ -131,11 +130,11 @@ function search($query, $course, $offset, &$countentries) {
         foreach ($recaliases as $recalias) {
             $listaliases[] = $recalias->entryid;
         }
-        $idaliases = implode (',',$listaliases);
+        $idaliases = implode (',', $listaliases);
     }
 
     // Add seach conditions in concepts and, if needed, in definitions.
-    $where = "AND (($conceptsearch) ";
+    $where = " AND (($conceptsearch) ";
 
     // Include aliases id if found.
     if (!empty($idaliases)) {
@@ -150,16 +149,16 @@ function search($query, $course, $offset, &$countentries) {
     }
 
     // Main query, only to allowed glossaries and to approved or own entries.
-    $sqlselect  = "SELECT DISTINCT ge.*";
-    $sqlfrom    = "FROM {glossary_entries} ge,
-                        {glossary} g";
+    $sqlselect  = 'SELECT DISTINCT ge.*';
+    $sqlfrom    = 'FROM {glossary_entries} ge,
+                        {glossary} g';
     $sqlwhere   = "WHERE g.course = $course->id AND
                          g.id IN (" . implode($glossaryids, ', ') . ") AND
                          (ge.glossaryid = g.id OR
                           ge.sourceglossaryid = g.id) AND
                          (ge.approved != 0 $userid)
                           $where";
-    $sqlorderby = "ORDER BY ge.glossaryid, ge.concept";
+    $sqlorderby = 'ORDER BY ge.glossaryid, ge.concept';
 
     // Set page limits.
     $limitfrom = $offset;
@@ -174,8 +173,8 @@ function search($query, $course, $offset, &$countentries) {
     return $allentries;
 }
 
-//////////////////////////////////////////////////////////
-// The main part of this script
+// ----------------------------------------
+// The main part of this script.
 
 $PAGE->set_pagelayout('standard');
 $PAGE->set_url($FULLME);
@@ -202,14 +201,15 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 // Get the format from CFG.
+// TODO: Use config_plugins.
 if (!empty($CFG->block_search_glossaries_format)) {
     $format = $CFG->block_search_glossaries_format;
 } else {
-    set_config('block_search_glossaries_format','dictionary');
-    $format = "dictionary";
+    set_config('block_search_glossaries_format', 'dictionary');
+    $format = 'dictionary';
 }
 
-$start = (GLOSSARYMAXRESULTSPERPAGE*$page);
+$start = (GLOSSARYMAXRESULTSPERPAGE * $page);
 
 // Process the query.
 $query = trim(strip_tags($query));
@@ -235,13 +235,15 @@ $endindex = $start + count($glossarydata);
 $countresults = $countentries;
 
 // Print results page tip.
-$page_bar = glossary_get_paging_bar($countresults, $page, GLOSSARYMAXRESULTSPERPAGE, "search_glossaries.php?bsquery=".urlencode(stripslashes($query))."&amp;courseid=$course->id&amp;");
+$pagebar = glossary_get_paging_bar($countresults, $page, GLOSSARYMAXRESULTSPERPAGE, 'search_glossaries.php?bsquery=' .
+    urlencode(stripslashes($query)) . "&amp;courseid=$course->id&amp;");
 
 // Iterate over results.
 if (!empty($glossarydata)) {
     // Print header.
-    echo '<p style="text-align: right">'.$strresults.' <b>'.($startindex+1).'</b> - <b>'.$endindex.'</b> '.$ofabout.'<b> '.$countresults.' </b>'.$for.'<b> "'.s($query).'"</b></p>';
-    echo $page_bar;
+    echo '<p style="text-align: right">' . $strresults . ' <b>' . ($startindex+1) . '</b> - <b>' . $endindex . '</b> ' .
+        $ofabout . '<b> ' . $countresults . ' </b>' . $for . '<b> "' . s($query) . '"</b></p>';
+    echo $pagebar;
     // Prepare each entry (hilight, footer...)
     echo '<ul>';
     foreach ($glossarydata as $entry) {
@@ -252,10 +254,10 @@ if (!empty($glossarydata)) {
         // to make highlight works properly.
         $searchterms = explode(' ', $query); // Search for words independently.
         foreach ($searchterms as $key => $searchterm) {
-            if (preg_match('/^\-/',$searchterm)) {
+            if (preg_match('/^\-/', $searchterm)) {
                 unset($searchterms[$key]);
             } else {
-                $searchterms[$key] = preg_replace('/^\+/','',$searchterm);
+                $searchterms[$key] = preg_replace('/^\+/', '', $searchterm);
             }
             // Avoid highlight of <2 len strings. It's a well known hilight limitation.
             if (strlen($searchterm) < 2) {
@@ -266,17 +268,18 @@ if (!empty($glossarydata)) {
         $entry->highlight = $strippedsearch;
 
         // To show where each match belongs to.
-        $result = "<li><a href=\"$CFG->wwwroot/mod/glossary/view.php?g=$entry->glossaryid\">".format_string($glossary->name,true)."</a></p>";
+        $result = "<li><a href=\"$CFG->wwwroot/mod/glossary/view.php?g=$entry->glossaryid\">" .
+            format_string($glossary->name, true) . '</a></p>';
         echo $result;
         // And the entry itself.
         glossary_print_entry($course, $cm, $glossary, $entry, '', '', 0, $format);
         echo '</li>';
     }
     echo '</ul>';
-    echo $page_bar;
+    echo $pagebar;
 } else {
     echo '<br />';
-    echo $OUTPUT->box(get_string("norecordsfound","block_search_glossaries"),'CENTER');
+    echo $OUTPUT->box(get_string('norecordsfound', 'block_search_glossaries'), 'CENTER');
 }
 
 echo $OUTPUT->footer();

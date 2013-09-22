@@ -1,6 +1,5 @@
 <?php
-// This file is part of block_search_glossaries,
-// a contrib block for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,20 +27,22 @@
 defined('MOODLE_INTERNAL') || die();
 
 class block_search_glossaries extends block_base {
-    function init() {
-        $this->title = get_string('pluginname','block_search_glossaries');
+    public function init() {
+        $this->title = get_string('pluginname', 'block_search_glossaries');
     }
 
-    function has_config() {return true;}
-
-    function applicable_formats() {
-        return (array('site-index' => true, 'course-view-weeks' => true, 'course-view-topics' => true));
+    public function has_config() {
+        return true;
     }
 
-    function get_content() {
-        global $CFG, $USER, $COURSE, $DB;
+    public function applicable_formats() {
+        return array('site' => true, 'course' => true);
+    }
 
-        if ($this->content !== NULL) {
+    public function get_content() {
+        global $CFG, $COURSE, $DB;
+
+        if ($this->content !== null) {
             return $this->content;
         }
 
@@ -74,5 +75,3 @@ class block_search_glossaries extends block_base {
         return $this->content;
     }
 }
-
-?>

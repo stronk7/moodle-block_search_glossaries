@@ -1,0 +1,30 @@
+<table cellpadding="9" cellspacing="0">
+<tr>
+    <td align="right"><p>block_search_glossaries_format:</td>
+    <td>
+    <input name="block" type="hidden" value="<?php echo intval($_REQUEST['block']); ?>" />
+    <?php 
+        require_once($CFG->dirroot.'/mod/glossary/lib.php');
+        $recformats = glossary_get_available_formats();
+        $formats = array();
+        //Take names
+        foreach ($recformats as $format) {
+            $formats[$format->name] = get_string("displayformat$format->name", "glossary");
+        }
+        //Sort them
+        asort($formats);
+        if (empty($CFG->block_search_glossaries_format)) {
+            $CFG->block_search_glossaries_format = 'dictionary';
+        }
+        choose_from_menu($formats,'block_search_glossaries_format',$CFG->block_search_glossaries_format);
+    ?>
+    </td>
+    <td>
+    <?php print_string("format", "block_search_glossaries") ?>
+    </td>
+</tr>
+<tr>
+    <td colspan="3" align="center">
+    <input type="submit" value="<?php print_string("savechanges") ?>" /></td>
+</tr>
+</table>
