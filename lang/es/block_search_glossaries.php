@@ -32,5 +32,6 @@ $string['for'] = 'para';
 $string['norecordsfound'] = 'No se encontraron datos';
 $string['results'] = 'Resultados';
 $string['format'] = 'Selecciona el formato en el que quiere visualizar los resultados';
+$string['search_glossaries:addinstance'] = 'Añadir un nuevo bloque de búsqueda en libros';
 $string['seconds'] = 'segundos';
 $string['searchresults'] = 'Resultados de la búsqueda en glosarios';

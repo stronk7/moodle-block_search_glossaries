@@ -22,7 +22,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2013083100; // The current block version (Date: YYYYMMDDXX)
+$plugin->version   = 2014051200; // The current block version (Date: YYYYMMDDXX)
 $plugin->requires  = 2012062500; // Requires this Moodle version (v2.3.0)
 $plugin->component = 'block_search_glossaries';
 

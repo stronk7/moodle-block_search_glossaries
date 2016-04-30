@@ -31,7 +31,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $query    = required_param('bsquery', PARAM_NOTAGS);
 $page     = optional_param('page', 0, PARAM_INT);
 
-function search($query, $course, $offset, &$countentries) {
+function search_glossaries_search($query, $course, $offset, &$countentries) {
 
     global $CFG, $USER, $DB;
 
@@ -177,7 +177,10 @@ function search($query, $course, $offset, &$countentries) {
 // The main part of this script.
 
 $PAGE->set_pagelayout('standard');
-$PAGE->set_url($FULLME);
+$PAGE->set_url('/blocks/search_glossaries/search_glossaries.php', array(
+        'courseid' => $courseid,
+        'bsquery' => $query,
+        'page' => $page));
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourseid');
@@ -215,7 +218,7 @@ $start = (GLOSSARYMAXRESULTSPERPAGE * $page);
 $query = trim(strip_tags($query));
 
 // Launch the SQL quey.
-$glossarydata = search($query, $course, $start, $countentries);
+$glossarydata = search_glossaries_search($query, $course, $start, $countentries);
 
 $coursefield = '<input type="hidden" name="courseid" value="'.$course->id.'">';
 $pagefield = '<input type="hidden" name="page" value="0">';
